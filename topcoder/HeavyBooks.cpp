@@ -38,28 +38,56 @@ typedef vector<double> VD;
 typedef long long LL;
 typedef pair<int,int> PII;
 
-VI bb, mm;
-int dp[52][52];
-
-int dodp(int pb, int pm, int ch)
-{
-    if(dp[pb][pm] >= 0) return dp[pb][pm];
-    if(pm < 0) return 0;
-    REP(i, pm+1) mm[i] -= ch;
-    int top = min(mm[0], mm[pm]);
-    int &tmp = dp[pb][pm];
-    if(pm%2 == 0){ //max
-
-    } else{ //min
-    }
-
-}
+const int oo = 1<<29;
+PII dp[55][55]; // bob-alice, bob+alice
+bool vis[55][55];
+VI id[2], b, m, f;
 
 class HeavyBooks {
     public:
-    vector <int> findWeight(vector <int> B, vector <int> M) {
-        bb = B, mm = M;
-        sort(bb.begin(), bb.end());
+    vector <int> findWeight(vector <int> _b, vector <int> _m) {
+        b = _b, m = _m;
+        sort(b.begin(), b.end());
+        REP(i, 2) id[i].clear();
+        REP(i, min((int)b.size(), m[0])) id[1].PB(i);
+        FOR(step, 1, m.size()-1){
+            REP(i,2) sort(id[i].begin(), id[i].end());
+            int p = step%2;
+            while(!id[p].empty() && m[step]){
+                id[p^1].push_back(id[p].back());
+                id[p].pop_back();
+                m[step]--;
+            }
+        }
+        REP(i, 2) sort(id[i].begin(), id[i].end());
+        f = VI(m[0], 0);
+        REP(i, id[0].size()) f[id[0][i]] = 1;
+        REP(i, 55) REP(j, 55) dp[i][j] = MP(-oo, -oo), vis[i][j] = false;
+        PII ans = solve(0,0);
+        VI res;
+        res.PB((ans.second-ans.first)/2);
+        res.PB((ans.first+ans.second)/2);
+        return res;
+    }
+    
+    PII solve(int r, int p){
+        if(r == m[0]) return dp[r][p] = MP(0,0);
+        if(p == b.size()) return dp[r][p] = MP(-oo, -oo);
+        if(vis[r][p]) return dp[r][p];
+        vis[r][p] = true;
+        dp[r][p] = solve(r, p+1);
+        PII tmp = solve(r+1, p+1);
+        if(tmp.first != -oo){
+            if(f[r]){
+                tmp.first -= b[p];
+                tmp.second += b[p];
+            } else{
+                tmp.first += b[p];
+                tmp.second += b[p];
+            }
+            dp[r][p] = max(dp[r][p], tmp);
+        }
+        return dp[r][p];
     }
 
 
