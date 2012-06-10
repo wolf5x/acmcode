@@ -1,0 +1,300 @@
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 10 
+elapsed: 0.911s
+Round: 14
+Elapsed: 99.982s
+Score = 438677.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 11 
+elapsed: 2.020s
+Round: 16
+Elapsed: 99.968s
+Score = 1401913.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 12 
+elapsed: 2.045s
+Round: 17
+Elapsed: 99.961s
+Score = 963116.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 13 
+elapsed: 0.313s
+Round: 7
+Elapsed: 99.987s
+Score = 1450946.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 14 
+elapsed: 0.482s
+Round: 22
+Elapsed: 99.958s
+Score = 107611.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 15 
+elapsed: 1.932s
+Round: 10
+Elapsed: 99.969s
+Score = 1011691.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 16 
+elapsed: 2.309s
+Round: 14
+Elapsed: 99.956s
+Score = 835412.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 17 
+elapsed: 1.462s
+Round: 15
+Elapsed: 99.992s
+Score = 3298167.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 18 
+elapsed: 0.045s
+Round: 14
+Elapsed: 100.010s
+Score = 471580.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 19 
+elapsed: 3.650s
+Round: 8
+Elapsed: 99.922s
+Score = 987284.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 20 
+elapsed: 0.542s
+Round: 12
+Elapsed: 99.981s
+Score = 3641880.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 21 
+elapsed: 0.008s
+Round: 9
+Elapsed: 100.004s
+Score = 112319.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 22 
+elapsed: 0.468s
+Round: 14
+Elapsed: 100.000s
+Score = 3278815.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 23 
+elapsed: 1.112s
+Round: 14
+Elapsed: 99.985s
+Score = 892136.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 24 
+elapsed: 0.350s
+Round: 4
+Elapsed: 100.000s
+Score = 3466014.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 25 
+elapsed: 0.453s
+Round: 17
+Elapsed: 100.001s
+Score = 3287004.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 26 
+elapsed: 0.050s
+Round: 20
+Elapsed: 100.009s
+Score = 205499.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 27 
+elapsed: 0.427s
+Round: 13
+Elapsed: 99.969s
+Score = 240369.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 28 
+elapsed: 0.086s
+Round: 16
+Elapsed: 99.969s
+Score = 54181.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 29 
+elapsed: 0.109s
+Round: 13
+Score = 301965.0
+Elapsed: 100.008s
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 30 
+elapsed: 1.164s
+Round: 18
+Elapsed: 100.002s
+Score = 1155218.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 31 
+elapsed: 1.336s
+Round: 14
+Elapsed: 99.970s
+Score = 482336.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 32 
+elapsed: 0.109s
+Round: 14
+Elapsed: 100.001s
+Score = 893769.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 33 
+elapsed: 0.988s
+Round: 11
+Elapsed: 99.982s
+Score = 785976.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 34 
+elapsed: 0.778s
+Round: 10
+Elapsed: 99.971s
+Score = 382819.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 35 
+elapsed: 0.024s
+Round: 10
+Elapsed: 100.001s
+Score = 513683.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 36 
+elapsed: 0.040s
+Round: 9
+Elapsed: 100.000s
+Score = 375028.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 37 
+elapsed: 0.751s
+Round: 7
+Elapsed: 99.999s
+Score = 1653762.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 38 
+elapsed: 0.109s
+Round: 15
+Elapsed: 100.004s
+Score = 130445.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 39 
+elapsed: 0.000s
+Round: 2
+Elapsed: 100.010s
+Score = 702534.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 40 
+elapsed: 1.046s
+Round: 20
+Elapsed: 99.969s
+Score = 2314119.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 41 
+elapsed: 0.145s
+Round: 11
+Elapsed: 100.011s
+Score = 607561.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 42 
+elapsed: 1.482s
+Round: 12
+Elapsed: 99.986s
+Score = 1842561.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 43 
+elapsed: 0.260s
+Round: 20
+Elapsed: 100.006s
+Score = 398610.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 44 
+elapsed: 0.705s
+Round: 19
+Elapsed: 99.996s
+Score = 2590154.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 45 
+elapsed: 0.104s
+Round: 12
+Elapsed: 99.991s
+Score = 115321.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 46 
+elapsed: 1.895s
+Round: 9
+Elapsed: 99.984s
+Score = 982882.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 47 
+elapsed: 0.205s
+Round: 10
+Elapsed: 100.000s
+Score = 1932636.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 48 
+elapsed: 0.288s
+Round: 8
+Elapsed: 100.014s
+Score = 5687702.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 49 
+elapsed: 0.016s
+Round: 2
+Elapsed: 100.014s
+Score = 1498942.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 50 
+elapsed: 0.527s
+Round: 14
+Elapsed: 99.970s
+Score = 753387.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 51 
+elapsed: 0.991s
+Round: 14
+Elapsed: 99.998s
+Score = 3088480.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 52 
+elapsed: 0.009s
+Round: 2
+Elapsed: 100.000s
+Score = 2191078.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 53 
+elapsed: 0.017s
+Round: 10
+Elapsed: 99.998s
+Score = 98475.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 54 
+elapsed: 2.535s
+Round: 21
+Elapsed: 99.975s
+Score = 1839157.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 55 
+elapsed: 0.522s
+Round: 15
+Elapsed: 99.987s
+Score = 839972.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 56 
+elapsed: 1.089s
+Round: 12
+Elapsed: 99.990s
+Score = 1863691.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 57 
+elapsed: 0.503s
+Round: 9
+Elapsed: 99.993s
+Score = 475972.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 58 
+elapsed: 3.790s
+Round: 9
+Elapsed: 99.949s
+Score = 1248678.0
+
+C:\Users\Administrator\Desktop\TopCoder\Archieve\Marathon>java -jar Tester.jar -exec "Cakes.exe" -seed 59 
+elapsed: 0.266s
+Round: 19
+Elapsed: 100.002s
+Score = 621859.0
