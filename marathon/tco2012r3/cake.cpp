@@ -1,4 +1,4 @@
-//#define DEBUG
+#define DEBUG
 #define LOCAL
 //#define PRINT
 #define USE_TESTER
@@ -54,6 +54,10 @@ typedef pair<int64,int64> i64pair;
 typedef vector<ipair> vipair;
 
 
+template<class T>
+inline int sgn(T x)
+{ return x>0?1:(x<0?-1:0); }
+
 // orz ACRush begin
 
 #ifdef DEBUG
@@ -86,7 +90,7 @@ uint64 rdtsc()
 #endif
 
 uint64 starttime_acrush=0;
-const double timelimit = TIMES_PER_SEC*9.8;
+const double timelimit = TIMES_PER_SEC*9.95;
 void starttime()
 {
     starttime_acrush=rdtsc();
@@ -150,6 +154,8 @@ const double R_TEMPERATURE_ALL = 0.9;
 const double START_TEMPERATURE_CAKE = 1000;
 const double START_TEMPERATURE_ALL = 1000;
 
+const double R_OTHERS_NEGTIVE = 0.5;
+
 const int MINC = 1;
 const int MAXC = 10;
 const int MING = 2;
@@ -167,25 +173,28 @@ int C, G, I, S;
 
 int cake[MAXC][MAXS][MAXS][MAXI];
 int pref[MAXG][MAXI];
-int joy[MAXG][MAXC][MAXS][MAXS];
+int64 joy[MAXG][MAXC][MAXS][MAXS];
 
 int try_each_low;
 int try_total;
 bool time_up;
-int max_joy;
-int min_joy;
+int64 max_joy;
+int64 min_joy;
 
 double temperature_all;
 double temperature_cake[MAXC];
+
+double tmpa[MAXS][MAXS], tmpb[MAXS][MAXS], tmpc[MAXS][MAXS];
+double cvalue[MAXG][MAXS][MAXS], density[MAXG][MAXS][MAXS];
 
 //sa config
 ipair last_start_cell[MAXG];
 ipair now_start_cell[MAXG];
 
 //runtime
-int now_score_guest[MAXG];
+int64 now_score_guest[MAXG];
 
-int now_value_cell[MAXG][MAXS][MAXS];
+int64 now_value_cell[MAXG][MAXS][MAXS];
 
 //heap
 int guest_of_cake[MAXC][MAXG];
@@ -198,11 +207,11 @@ int tot_bound_of_guest[MAXG];
 int now_cake_state[MAXC][MAXS][MAXS];
 int cake_preflag[MAXC][MAXS][MAXS];
 
-int last_score_cake[MAXC];
-int now_score_cake[MAXC];
+int64 last_score_cake[MAXC];
+int64 now_score_cake[MAXC];
 
 //sa ans
-int best_score_cake[MAXC];
+int64 best_score_cake[MAXC];
 int best_cake_state[MAXC][MAXS][MAXS];
 
 int cake_round[MAXC];
@@ -215,12 +224,12 @@ int now_guest_of_cake[MAXC][MAXG];
 int now_tot_guest_of_cake[MAXC];
 int now_in_cake[MAXG];
 
-int now_score_all;
-int last_score_all;
+int64 now_score_all;
+int64 last_score_all;
 
 
-int best_score_all;
-int best_state_all[MAXC][MAXS][MAXS];
+int64 best_score_all;
+int64 best_state_all[MAXC][MAXS][MAXS];
 
 int round_count;
 
@@ -229,8 +238,108 @@ uint64 atime_all_round = 1*TIMES_PER_SEC;
 
 double myrand(double l, double r)
 {
-    return (r-l)*(double)rand()/32768;
+    return (r-l)*(double)rand()/32768+l;
 }
+
+//comparator
+bool mycmp_guest_of_cake(int g1, int g2) //less
+{
+    return now_score_guest[g1] > now_score_guest[g2];
+}
+
+int cmp_gg;
+bool mycmp_cell_of_guest(ipair c1, ipair c2) //less
+{
+    return now_value_cell[cmp_gg][c1.first][c1.second] < now_value_cell[cmp_gg][c2.first][c2.second];
+}
+
+bool mycmp_cvalue(ipair c1, ipair c2) //less
+{
+    return cvalue[cmp_gg][c1.first][c1.second] < cvalue[cmp_gg][c2.first][c2.second];
+}
+
+
+//value begin
+void calvalue00(int cc)
+{
+    REP(i,now_tot_guest_of_cake[cc]){
+        int gg = now_guest_of_cake[cc][i];
+        REP(j,S)REP(k,S){
+            cvalue[gg][j][k] = joy[gg][cc][j][k];
+        }
+    }
+}
+
+inline void fix_in_cake(int &r)
+{
+    if(r>=S)r=S-1;
+    if(r<0)r=0;
+}
+
+template <class T>
+inline T get_array_sum(T ary[MAXS][MAXS], int r1, int c1, int r2, int c2)
+{
+    fix_in_cake(r1);
+    fix_in_cake(c1);
+    fix_in_cake(r2);
+    fix_in_cake(c2);
+    if(r1>r2||c1>c2) return (T)0;
+    return ary[r2][c2] 
+        - (r1>0?ary[r1-1][c2]:0) - (c1>0?ary[r2][c1-1]:0) 
+        + ((r1>0&&c1>0)?ary[r1-1][c1-1]:0);
+}
+
+int get_area(int r1, int c1, int r2, int c2)
+{
+    fix_in_cake(r1);
+    fix_in_cake(c1);
+    fix_in_cake(r2);
+    fix_in_cake(c2);
+    if(r1>r2||c1>c2) return 0;
+    return (r2-r1+1)*(c2-c1+1);
+}
+
+void calvalue11(int cc) // square , no distance effect
+{
+    REP(i,S) REP(j,S){
+        tmpa[i][j] = 0;
+    }
+    REP(i,now_tot_guest_of_cake[cc]){
+        int gg = now_guest_of_cake[cc][i];
+        REP(j,S)REP(k,S) {
+            tmpa[j][k] += sqrt((double)joy[gg][cc][j][k]);
+            
+            cvalue[gg][j][k] = 0;
+        }
+    }
+    int sg = now_tot_guest_of_cake[cc];
+    if(sg == 0) return ;
+    int dd = 0.5*sqrt(S*S/sg);
+    REP(i,now_tot_guest_of_cake[cc]){
+        int gg = now_guest_of_cake[cc][i];
+        REP(j,S)REP(k,S){
+            tmpb[j][k] = tmpa[j][k]<1e-8?1e30:
+                (double)joy[gg][cc][j][k]*joy[gg][cc][j][k]/((1-R_OTHERS_NEGTIVE)*joy[gg][cc][j][k] + R_OTHERS_NEGTIVE*tmpa[j][k]);
+        }
+        REP(j,S)REP(k,S){
+            tmpc[j][k] = tmpb[j][k]
+                +get_array_sum(tmpc,0,0,j-1,k)+get_array_sum(tmpc,0,0,j,k-1)
+                -get_array_sum(tmpc,0,0,j-1,k-1);
+        }
+        REP(j,S)REP(k,S){
+            density[gg][j][k] = get_array_sum(tmpc, j-dd,k-dd,j+dd,k+dd)/get_area(j-dd,k-dd,j+dd,k+dd); //TODO
+            cvalue[gg][j][k] = tmpb[j][k];
+        }
+    }
+}
+
+void calvalue22(int cc); // prismatic, no distance effect
+
+void calvalue33(int cc);
+
+//value end
+
+
 
 bool has_time_cake()
 {
@@ -242,10 +351,10 @@ bool has_time_all()
     return (timelimit-gettime() > atime_all_round);
 }
 
-int get_value(int gg, int cc, int row, int col)
+double get_value(int gg, int cc, int row, int col)
 {
     // TODO
-    return joy[gg][cc][row][col];
+    return cvalue[gg][row][col];
 }
 
 void check_best_cake(int cc)
@@ -253,21 +362,21 @@ void check_best_cake(int cc)
     if(now_score_cake[cc] > best_score_cake[cc]){
         best_score_cake[cc] = now_score_cake[cc];
         #ifdef DEBUG
-        int sum[MAXG] = {0};
+//        int sum[MAXG] = {0};
         #endif
         REP(i,S) REP(j,S){
             best_cake_state[cc][i][j] = now_cake_state[cc][i][j];
             #ifdef DEBUG
-            int gg = now_cake_state[cc][i][j];
-            sum[gg] += joy[gg][cc][i][j];
+//            int gg = now_cake_state[cc][i][j];
+//            sum[gg] += joy[gg][cc][i][j];
             #endif
         }
         #ifdef DEBUG
-        int tb = INF_INT;
-        REP(i, now_tot_guest_of_cake[cc]){
-            tb = min(tb, sum[now_guest_of_cake[cc][i]]);
-        }
-        DPRINT("cake %d : %d (..%d)\n", cc, now_score_cake[cc], tb);
+//        int tb = INF_INT;
+//        REP(i, now_tot_guest_of_cake[cc]){
+//            tb = min(tb, sum[now_guest_of_cake[cc][i]]);
+//        }
+//        DPRINT("cake %d : %d (..%d)\n", cc, now_score_cake[cc], tb);
         #endif
     }
 }
@@ -311,17 +420,6 @@ inline bool check_connect_cell(int cc, ipair cell, int gid)
     return false;
 }
 
-bool mycmp_guest_of_cake(int g1, int g2)
-{
-    return now_score_guest[g1] > now_score_guest[g2];
-}
-
-int cmp_gg;
-bool mycmp_cell_of_guest(ipair c1, ipair c2)
-{
-    return now_value_cell[cmp_gg][c1.first][c1.second] < now_value_cell[cmp_gg][c2.first][c2.second];
-}
-
 
 double get_next_temperature_cake(int cc)
 {
@@ -344,6 +442,8 @@ void init_cake(int cc)
     
     last_score_cake[cc] = now_score_cake[cc] = 0;
     
+    calvalue11(cc); //TODO value
+    
     //TODO cal value
     REP(i, now_tot_guest_of_cake[cc]){
         int gg = now_guest_of_cake[cc][i];
@@ -353,15 +453,78 @@ void init_cake(int cc)
     }
     
     temperature_cake[cc] = START_TEMPERATURE_CAKE;
+    
+}
+
+//
+void choose_by_density(int cc)
+{
+    //rand for each
+    //TODO maybe overlap
+    REP(i, now_tot_guest_of_cake[cc]){
+        int gg = now_guest_of_cake[cc][i];
+        REP(step, S<<2){ //TODO
+            ipair t = MP(rand()%S,rand()%S);
+            if(step == 0 || density[gg][t.first][t.second]>density[gg][now_start_cell[gg].first][now_start_cell[gg].second]){
+                #ifdef DEBUG
+//                DPRINT("%d,%d %lf  - %d,%d %lf\n",t.first,t.second,density[gg][t.first][t.second],
+//                       now_start_cell[gg].first, now_start_cell[gg].second, density[gg][now_start_cell[gg].first][now_start_cell[gg].second]);
+                #endif
+                now_start_cell[gg] = t;
+            }
+        }
+    }
+}
+
+void adjust_by_diff(int cc)
+{
+    int sg = now_tot_guest_of_cake[cc];
+    if(sg<= 1) return;
+    
+    // cal light center and heavy center
+    int minid = -1;
+    REP(i, sg){
+        int gg = now_guest_of_cake[cc][i];
+        if(minid == -1 || now_score_guest[gg] < now_score_guest[minid])
+            minid = gg;
+    }
+    REP(i, sg){
+        int gg = now_guest_of_cake[cc][i];
+        if(gg != minid){
+            int sgnr = sgn(now_start_cell[gg].first-now_start_cell[minid].first);
+            int sgnc = sgn(now_start_cell[gg].second-now_start_cell[minid].second);
+            now_start_cell[gg].first += sgnr*myrand(0.1,0.15)*S;
+            now_start_cell[gg].second += sgnc*myrand(0.1,0.15)*S;
+            fix_in_cake(now_start_cell[gg].first);
+            fix_in_cake(now_start_cell[gg].second);
+        }
+        #ifdef DEBUG
+        DPRINT("  cake #%d starts : %d,%d\n", gg, now_start_cell[gg].first, now_start_cell[gg].second);
+        #endif
+    }
+    
 }
 
 void choose_init_state_cake(int cc) // choose start cell of each guest
 {
     // TODO
-    REP(i, now_tot_guest_of_cake[cc]){
-        int gg = now_guest_of_cake[cc][i];
-        now_start_cell[gg] = MP(rand()%S, rand()%S);
-    }
+    // random all
+//    REP(i, now_tot_guest_of_cake[cc]){
+//        int gg = now_guest_of_cake[cc][i];
+//        for(bool flag=false;!flag; ){
+//            now_start_cell[gg] = MP(rand()%S, rand()%S);
+//            flag = true;
+//            REP(j, now_tot_guest_of_cake[cc]){
+//                int qq = now_guest_of_cake[cc][j];
+//                if(j!=i && now_start_cell[gg]==now_start_cell[qq]){
+//                    flag = false; break;
+//                }
+//            }
+//        }
+//    }
+
+    // density
+    choose_by_density(cc);
     save_now_to_last_cake(cc);
 }
 
@@ -376,11 +539,24 @@ void generate_new_state_cake(int cc)
 //        int g1 = now_guest_of_cake[cc][i], g2 = now_guest_of_cake[cc][rand()%now_tot_guest_of_cake[cc]];
 //        swap(now_start_cell[g1], now_start_cell[g2]);
 //    }
-    REP(i, now_tot_guest_of_cake[cc]){
-        int gg = now_guest_of_cake[cc][i];
-        now_start_cell[gg] = MP(rand()%S, rand()%S);
+//    REP(i, now_tot_guest_of_cake[cc]){
+//        int gg = now_guest_of_cake[cc][i];
+//        for(bool flag=false;!flag; ){
+//            now_start_cell[gg] = MP(rand()%S, rand()%S);
+//            flag = true;
+//            REP(j, now_tot_guest_of_cake[cc]){
+//                int qq = now_guest_of_cake[cc][j];
+//                if(j!=i && now_start_cell[gg]==now_start_cell[qq]){
+//                    flag = false; break;
+//                }
+//            }
+//        }
+//    }
+    if(myrand(0,1) < 0.15){
+        choose_by_density(cc);
+    } else{
+        adjust_by_diff(cc);
     }
-    
 }
 
 void reset_cake(int cc)
@@ -413,9 +589,9 @@ void reset_cake(int cc)
 void solve_now_cake(int cc)
 {
     #ifdef DEBUG
-    #ifdef PRINT
-    DPRINT("solve cake #%d start ..\n", cc);
-    #endif
+//    #ifdef PRINT
+//    DPRINT("solve cake #%d start ..\n", cc);
+//    #endif
     #endif
     reset_cake(cc);
 
@@ -488,9 +664,7 @@ void solve_now_cake(int cc)
     }
     
     #ifdef DEBUG
-    #ifdef PRINT
-    DPRINT("solve cake #%d end\n", cc);
-    #endif
+//    DPRINT("solve cake #%d end\n", cc);
     #endif
 }
 
@@ -547,7 +721,7 @@ void sa_cake(int cc)
         }
         
     #ifdef DEBUG
-//        DPRINT("-- Cake #%d, Round = %d, Score = %d\n", cc, cake_round[cc], best_score_cake[cc]);
+        DPRINT("-- Cake #%d, Round = %d, Score = %lld\n", cc, cake_round[cc], best_score_cake[cc]);
 //        DPRINT("\n");
     #endif
         
@@ -712,7 +886,7 @@ void show_current_best_all()
 //        }
 //        DPRINT(" ***\n");
 //    }
-    DPRINT("Current Best Score = %d\n", best_score_all);
+    DPRINT("Current Best Score = %lld\n", best_score_all);
 //    DPRINT("\n");
 }
 #endif
@@ -738,7 +912,7 @@ void sa_all()
         solve_now_all();
         check_best_all();
 #ifdef DEBUG
-        show_current_best_all();
+//        show_current_best_all();
 #endif
         
         int det = now_score_all - last_score_all;
@@ -765,6 +939,7 @@ vint god_is_in_the_tv()
         ret[ss++] = best_state_all[i][j][k];
         
     #ifdef DEBUG
+    DPRINT("Round Count = %d | ", round_count);
     DPRINT("Time cost: %lf\n", (double)gettime()/TIMES_PER_SEC);
     #endif
     return ret;
@@ -814,11 +989,11 @@ int main()
     Cakes hello;
     input();
 #ifdef DEBUG
-    DPRINT("%d %d %d %d\n", C, G, I, S);
+//    DPRINT("%d %d %d %d\n", C, G, I, S);
 #endif
     vint ret = hello.split(C, G, I, S, preferences, cakes);
 #ifdef DEBUG
-    Timer::show();
+//    Timer::show();
 #endif
 
     for (int i=0; i < ret.size(); i++)
