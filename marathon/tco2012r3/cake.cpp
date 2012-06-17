@@ -1,4 +1,4 @@
-#define DEBUG
+//#define DEBUG
 #define LOCAL
 //#define PRINT
 #define USE_TESTER
@@ -69,8 +69,10 @@ void __assert(const char *_Message,const unsigned _Line)
     fprintf(stderr, "Line = %u\n",_Line);
     exit(0);
 }
-#define DPRINT(format,args...) fprintf(stderr, format, ##args)
+
 #endif
+
+#define DPRINT(format,args...) fprintf(stderr, format, ##args)
 
 uint64 rdtsc()
 {
@@ -90,7 +92,7 @@ uint64 rdtsc()
 #endif
 
 uint64 starttime_acrush=0;
-const double timelimit = TIMES_PER_SEC*9.95;
+const double timelimit = TIMES_PER_SEC*9.85;
 void starttime()
 {
     starttime_acrush=rdtsc();
@@ -148,6 +150,9 @@ const int INF_INT = 0x7fffffff;
 const ipair NULL_PAIR = MP(-1,-1);
 const int DR[] = {0,0,-1,1};
 const int DC[] = {-1,1,0,0};
+
+const int RR[] = {-1,-1,-1,0,1,1,1,0};
+const int RC[] = {-1,0,1,1,1,0,-1,-1};
 
 const double R_TEMPERATURE_CAKE = 0.9;
 const double R_TEMPERATURE_ALL = 0.9;
@@ -238,7 +243,7 @@ uint64 atime_all_round = 1*TIMES_PER_SEC;
 
 double myrand(double l, double r)
 {
-    return (r-l)*(double)rand()/32768+l;
+    return (r-l)*(double)(rand()%32768)/32768+l;
 }
 
 //comparator
@@ -420,6 +425,22 @@ inline bool check_connect_cell(int cc, ipair cell, int gid)
     return false;
 }
 
+inline bool check_joint_cell(int cc, ipair cell, int gid)
+{
+    int flag = 0;
+    int oldr = cell.first + RR[7], oldc = cell.second+ RC[7];
+    REP(k,8){
+        int tr = cell.first + RR[k], tc = cell.second + RC[k];
+        if(is_in_cake(tr,tc) && now_cake_state[cc][tr][tc] == gid){
+            if(!is_in_cake(oldr,oldc) || now_cake_state[cc][oldr][oldc]!=gid){
+                flag++;
+            }
+        }
+        oldr = tr, oldc = tc;
+    }
+    return flag > 1;
+}
+
 
 double get_next_temperature_cake(int cc)
 {
@@ -457,6 +478,25 @@ void init_cake(int cc)
 }
 
 //
+
+void choose_randomly(int cc)
+{
+    // random all
+    REP(i, now_tot_guest_of_cake[cc]){
+        int gg = now_guest_of_cake[cc][i];
+        for(bool flag=false;!flag; ){
+            now_start_cell[gg] = MP(rand()%S, rand()%S);
+            flag = true;
+            REP(j, now_tot_guest_of_cake[cc]){
+                int qq = now_guest_of_cake[cc][j];
+                if(j!=i && now_start_cell[gg]==now_start_cell[qq]){
+                    flag = false; break;
+                }
+            }
+        }
+    }
+}
+
 void choose_by_density(int cc)
 {
     //rand for each
@@ -476,55 +516,51 @@ void choose_by_density(int cc)
     }
 }
 
-void adjust_by_diff(int cc)
+bool adjust_by_diff(int cc)
 {
-    int sg = now_tot_guest_of_cake[cc];
-    if(sg<= 1) return;
-    
-    // cal light center and heavy center
-    int minid = -1;
-    REP(i, sg){
+    vector<pair<int64,int> > rank(now_tot_guest_of_cake[cc]);
+    REP(i, now_tot_guest_of_cake[cc]){
         int gg = now_guest_of_cake[cc][i];
-        if(minid == -1 || now_score_guest[gg] < now_score_guest[minid])
-            minid = gg;
+        rank[i] = MP(now_score_guest[gg], gg);
     }
-    REP(i, sg){
-        int gg = now_guest_of_cake[cc][i];
-        if(gg != minid){
-            int sgnr = sgn(now_start_cell[gg].first-now_start_cell[minid].first);
-            int sgnc = sgn(now_start_cell[gg].second-now_start_cell[minid].second);
-            now_start_cell[gg].first += sgnr*myrand(0.1,0.15)*S;
-            now_start_cell[gg].second += sgnc*myrand(0.1,0.15)*S;
-            fix_in_cake(now_start_cell[gg].first);
-            fix_in_cake(now_start_cell[gg].second);
+    sort(rank.begin(), rank.end());
+    int change = 0;
+    REP(i, rank.size()){
+        int ss = -1;
+        int g1 = rank[i].second;
+        int r1 = now_start_cell[g1].first;
+        int c1 = now_start_cell[g1].second;
+        int g2, r2, c2;
+        FORD(j, rank.size()-1, i+1){
+            g2 = rank[j].second;
+            r2 = now_start_cell[g2].first;
+            c2 = now_start_cell[g2].second;
+            if(density[g1][r1][c1] < density[g2][r2][c2]){
+                if(myrand(0,1)>0.1){
+                    ss = j;
+                    break;
+                }
+            }
         }
-        #ifdef DEBUG
-        DPRINT("  cake #%d starts : %d,%d\n", gg, now_start_cell[gg].first, now_start_cell[gg].second);
-        #endif
+        if(ss >= 0){
+            change++;
+            swap(now_start_cell[g1], now_start_cell[g2]);
+            rank.erase(rank.begin()+ss);
+            rank.erase(rank.begin()+i);
+            i--;
+        }
     }
+    return change>0;
     
 }
 
 void choose_init_state_cake(int cc) // choose start cell of each guest
 {
     // TODO
-    // random all
-//    REP(i, now_tot_guest_of_cake[cc]){
-//        int gg = now_guest_of_cake[cc][i];
-//        for(bool flag=false;!flag; ){
-//            now_start_cell[gg] = MP(rand()%S, rand()%S);
-//            flag = true;
-//            REP(j, now_tot_guest_of_cake[cc]){
-//                int qq = now_guest_of_cake[cc][j];
-//                if(j!=i && now_start_cell[gg]==now_start_cell[qq]){
-//                    flag = false; break;
-//                }
-//            }
-//        }
-//    }
+    choose_randomly(cc);
 
     // density
-    choose_by_density(cc);
+//    choose_by_density(cc);
     save_now_to_last_cake(cc);
 }
 
@@ -552,10 +588,9 @@ void generate_new_state_cake(int cc)
 //            }
 //        }
 //    }
-    if(myrand(0,1) < 0.15){
-        choose_by_density(cc);
-    } else{
-        adjust_by_diff(cc);
+
+    if(myrand(0,1) < 0.5 || false == adjust_by_diff(cc) ){
+        choose_randomly(cc);
     }
 }
 
@@ -584,6 +619,122 @@ void reset_cake(int cc)
         push_heap(guest_of_cake[cc], guest_of_cake[cc]+tot_guest_of_cake[cc], mycmp_guest_of_cake);
     }
     
+}
+
+// for climbing a cake
+set<pair<double, pair<int,int> > > climb_heap; // -cvalue, <row,col>
+int rankmap[MAXG];
+
+void do_climb_cake(int cc)
+{
+    vector<pair<int64,int> > rank(now_tot_guest_of_cake[cc]);
+    REP(step, now_tot_guest_of_cake[cc]){
+        int mingg = -1, maxgg = -1;
+        int64 sum = 0;
+        REP(i, now_tot_guest_of_cake[cc]){
+            int gg = now_guest_of_cake[cc][i];
+            sum += now_score_guest[gg];
+            rank[i] = MP(now_score_guest[gg], gg);
+            
+            if(mingg == -1 || now_score_guest[gg] < now_score_guest[mingg]){
+                mingg = gg;
+            }
+            if(maxgg == -1 || now_score_guest[gg] > now_score_guest[maxgg]){
+                maxgg = gg;
+            }
+        }
+        sort(rank.begin(), rank.end());
+
+        REP(i,rank.size()){
+            rankmap[rank[i].second] = i;
+        }
+        
+        //start climb
+        int64 climb_line = max(sum/now_tot_guest_of_cake[cc], now_score_guest[mingg]); // TODO
+        int64 climb_step = (now_score_guest[maxgg]-climb_line)/now_tot_guest_of_cake[cc];
+        
+        int choice = -1;
+        REP(i,S) REP(j,S){
+            int gg = now_cake_state[cc][i][j];
+            if(choice==-1 || rankmap[gg]<rankmap[choice]){
+                REP(k,4){
+                    int tr = i+DR[k], tc = j+DC[k];
+                    if(is_in_cake(tr,tc)){
+                        int tg = now_cake_state[cc][tr][tc];
+                        if(rankmap[tg] >= now_tot_guest_of_cake[cc]-1-step 
+                           && rankmap[tg]>rankmap[gg]
+                           && !check_joint_cell(cc,MP(tr,tc),tg)){
+                            choice = gg;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(choice < 0){
+            return ;
+        }
+        mingg = choice;
+        #ifdef DEBUG
+//        DPRINT("  -- choose %d(%lld),  %d(%lld\n", mingg, now_score_guest[mingg], (*rank.rbegin()).second, now_score_guest[(*rank.rbegin()).second]);
+        #endif
+        climb_heap.clear();
+        
+        REP(i,S) REP(j,S){
+            if(now_cake_state[cc][i][j] == mingg){
+                set_preflag(cc, MP(i,j), mingg);
+                continue;
+            }
+            if(now_cake_state[cc][i][j] != mingg 
+               && check_connect_cell(cc, MP(i,j), mingg)
+               && rankmap[now_cake_state[cc][i][j]] >= now_tot_guest_of_cake[cc]-1-step){
+                climb_heap.insert(MP(-get_value(mingg,cc,i,j), MP(i,j)));
+                set_preflag(cc, MP(i,j), mingg);
+            } else{
+                remove_preflag(cc, MP(i,j), mingg);
+            }
+            
+        }
+        #ifdef DEBUG
+//        DPRINT(" xx bound count = %d\n", climb_heap.size());
+        #endif
+        while(!climb_heap.empty()){
+            ipair coord = (*climb_heap.begin()).second;
+            climb_heap.erase(climb_heap.begin());
+            int tg = now_cake_state[cc][coord.first][coord.second];
+            
+            // check 
+            if(check_joint_cell(cc, coord, now_cake_state[cc][coord.first][coord.second])){
+                continue;
+            }
+            if(rankmap[tg] < now_tot_guest_of_cake[cc]-1-step){
+                continue;
+            }
+            if(now_score_guest[tg]-joy[tg][cc][coord.first][coord.second] 
+               < now_score_guest[mingg]+joy[mingg][cc][coord.first][coord.second]){
+                continue;
+            }
+            // assign cell to mingg
+            now_score_guest[tg] -= joy[tg][cc][coord.first][coord.second];
+            now_score_guest[mingg] += joy[mingg][cc][coord.first][coord.second];
+            now_cake_state[cc][coord.first][coord.second] = mingg;
+            
+            // bfs
+            REP(k,4){
+                int tr = coord.first+DR[k], tc = coord.second+DC[k];
+                if(is_in_cake(tr, tc) && !check_preflag(cc, MP(tr,tc), mingg)){
+                    set_preflag(cc, MP(tr, tc), mingg);
+                    climb_heap.insert(MP(-get_value(mingg,cc,tr,tc), MP(tr,tc)));
+                }
+            }
+        }
+        #ifdef DEBUG
+
+//        if(step == now_tot_guest_of_cake[cc]-1){
+//            DPRINT(" climb....step=%d , min = %lld, max = %lld\n", dan,now_score_guest[mingg], now_score_guest[maxgg]);
+//        }
+        #endif
+    }
 }
 
 void solve_now_cake(int cc)
@@ -657,6 +808,17 @@ void solve_now_cake(int cc)
         }
     }
     
+#ifdef DEBUG
+//    now_score_cake[cc] = INF_INT;
+//    REP(i, now_tot_guest_of_cake[cc]){
+//        int gg = now_guest_of_cake[cc][i];
+//        now_score_cake[cc] = min(now_score_cake[cc], now_score_guest[gg]);
+//    }
+//    DPRINT(" climb %d: %lld to ", cc, now_score_cake[cc]);
+#endif
+    
+    do_climb_cake(cc);
+    
     now_score_cake[cc] = INF_INT;
     REP(i, now_tot_guest_of_cake[cc]){
         int gg = now_guest_of_cake[cc][i];
@@ -664,6 +826,7 @@ void solve_now_cake(int cc)
     }
     
     #ifdef DEBUG
+//    DPRINT("%lld\n", now_score_cake[cc]);
 //    DPRINT("solve cake #%d end\n", cc);
     #endif
 }
@@ -721,7 +884,7 @@ void sa_cake(int cc)
         }
         
     #ifdef DEBUG
-        DPRINT("-- Cake #%d, Round = %d, Score = %lld\n", cc, cake_round[cc], best_score_cake[cc]);
+//        DPRINT("-- Cake #%d, Round = %d, Score = %lld\n", cc, cake_round[cc], best_score_cake[cc]);
 //        DPRINT("\n");
     #endif
         
@@ -807,11 +970,8 @@ void init_all()
     #endif
 }
 
-
-
-void choose_init_state_all() // choose guests of each cake
+void choose_all_randomly()
 {
-    //TODO
     REP(i,C){
         now_tot_guest_of_cake[i] = 0;
     }
@@ -821,20 +981,62 @@ void choose_init_state_all() // choose guests of each cake
         now_tot_guest_of_cake[cc]++;
         now_in_cake[i] = cc;
     }
+}
+
+void move_guest_between_cake(int cc, int pp, int cto)
+{
+    int gg = now_guest_of_cake[cc][pp];
+    now_guest_of_cake[cc][pp] = now_guest_of_cake[cc][--now_tot_guest_of_cake[cc]];
+    now_guest_of_cake[cto][now_tot_guest_of_cake[cto]++] = gg;
+}
+
+bool adjust_all_by_diff()
+{
+    vector<pair<int64,int> > rank_cake(C);
+    REP(cc,C){
+        int64 ave = 0;
+        if(now_tot_guest_of_cake[cc] == 0){
+            ave = 1LL<<62;
+        } else{
+            REP(j,now_tot_guest_of_cake[cc]){
+                ave += now_score_cake[now_guest_of_cake[cc][j]];
+            }
+            ave /= now_tot_guest_of_cake[cc];
+        }
+        rank_cake[cc] = MP(ave,cc);
+    }
+    int change = 0;
+    REP(cc,C/2){
+        if(cc<=C/3){ // move
+            if(now_tot_guest_of_cake[cc]==0)continue;
+            int p1 = rand()%now_tot_guest_of_cake[cc];
+            move_guest_between_cake(cc, p1, C-1-cc);
+            change++;
+        } else{ //swap
+            if(now_tot_guest_of_cake[cc]==0)continue;
+            int p1 = rand()%now_tot_guest_of_cake[cc];
+            move_guest_between_cake(cc, p1, C-1-cc);
+            if(now_tot_guest_of_cake[C-1-cc]==0)continue;
+            int p2 = rand()%now_tot_guest_of_cake[C-1-cc];
+            move_guest_between_cake(C-1-cc, p2, cc);
+            change++;
+        }
+    }
+    return change>1;
+}
+
+void choose_init_state_all() // choose guests of each cake
+{
+    //TODO
+    choose_all_randomly();
     save_now_to_last_all();
 }
 
 void generate_new_state_all()
 {
-    // TODO
-    REP(i,C){
-        now_tot_guest_of_cake[i] = 0;
-    }
-    REP(i,G){
-        int cc = rand()%C;
-        now_guest_of_cake[cc][now_tot_guest_of_cake[cc]] = i;
-        now_tot_guest_of_cake[cc]++;
-        now_in_cake[i] = cc;
+//     TODO
+    if(myrand(0,1)<0.3|| false == adjust_all_by_diff() ){
+        choose_all_randomly();
     }
 }
 
@@ -912,7 +1114,7 @@ void sa_all()
         solve_now_all();
         check_best_all();
 #ifdef DEBUG
-//        show_current_best_all();
+        show_current_best_all();
 #endif
         
         int det = now_score_all - last_score_all;
@@ -983,18 +1185,12 @@ void input()
 
 int main()
 {
-#ifdef DEBUG
-//    freopen("cake.log","w",stderr);
-#endif
+
     Cakes hello;
     input();
-#ifdef DEBUG
-//    DPRINT("%d %d %d %d\n", C, G, I, S);
-#endif
+
     vint ret = hello.split(C, G, I, S, preferences, cakes);
-#ifdef DEBUG
-//    Timer::show();
-#endif
+
 
     for (int i=0; i < ret.size(); i++)
         printf("%d\n", ret[i]);
