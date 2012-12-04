@@ -46,6 +46,7 @@ typedef long long LL;
 typedef pair<int,int> PII;
 
 const double PI = 3.1415926535897932384626;
+const double EPS = 1e-8;
 
 struct point {
 	long long x, y;
@@ -57,7 +58,7 @@ struct point {
 		return point(x-v.x, y-v.y);
 	}
 
-	bool operator<(point v) {
+	bool operator<(const point &v) const{
 		return x<v.x || x==v.x && y<v.y;
 	}
 
@@ -81,7 +82,7 @@ vector<long long> wx, wy, bx, by;
 vector<point> wp, bp;
 
 void cat(vector<string> vs, vector<long long> &vl) {
-	string ss;
+	string ss = "";
 	REP(i, vs.size()) 
 		ss.append(vs[i]);
 	istringstream is(ss);
@@ -117,24 +118,34 @@ class CheckerFreeness {
     }
 
 	bool count(point s, point t) {
-		double l = PI, r = 0.;
+		vector<pair<double,point> > l, r;
 		REP(i, nb) {
 			long long cc = xmul(t-s, bp[i]-t);
 			if(cc > 0) {
-				l = min(l, angle(t-s, t-bp[i]));
-				r = max(r, angle(t-s, s-bp[i]));
+				l.push_back(make_pair(angle(t-bp[i],t-s), bp[i]));
+			} else if(cc < 0) {
+			    r.push_back(make_pair(angle(bp[i]-t,t-s), bp[i]));
 			}
 		}
-		REP(i, nb) {
-			long long cc = xmul(t-s, bp[i]-t);
-			if(cc < 0) {
-				if(angle(
-			}
+		if(l.empty() || r.empty())
+            return false;
+		sort(l.begin(), l.end());
+		sort(r.begin(), r.end());
+		set<double> ar;
+		int pl = 0, pr = 0;
+		while(pr < r.size()) {
+            while(pl < l.size() && l[pl].first < r[pr].first-EPS){
+                ar.insert(angle(s-t, s-l[pl].second));
+                pl++;
+            }
+            if(!ar.empty() && angle(s-t, r[pr].second-s) > *ar.rbegin() + EPS)
+                return true;
+            pr++;
 		}
 		return false;
 	}
 
-	
+
     
 // BEGIN CUT HERE
 	public:
