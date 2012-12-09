@@ -8,10 +8,36 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-
+#include <map>
+#include <set>
+#include <queue>
+#include <stack>
+#include <fstream>
+#include <numeric>
+#include <iomanip>
+#include <bitset>
+#include <list>
+#include <stdexcept>
+#include <functional>
+#include <utility>
+#include <ctime>
 using namespace std;
-#define REP(i,n) for(int i=0;i<(n);++i)
 
+#define PB push_back
+#define MP(x,y) make_pair((x),(y))
+#define FI(x) ((x).first)
+#define SE(x) ((x).second)
+#define SZ(x) ((x).size())
+#define LEN(x) ((x).length())
+
+#define REP(i,n) for(int i=0;i<(n);++i)
+#define FOR(i,l,h) for(int i=(l);i<=(h);++i)
+#define FORD(i,h,l) for(int i=(h);i>=(l);--i)
+#define FORIT(i,c) for(typeof((c).begin()) i=(c).begin(); i!=(c).end(); ++i)
+#define FORRIT(i,c) for(typeof((c).rbegin()) i=(c).rbegin(); i!=(c).rend(); ++i)
+
+#define CLR(x) memset((x),0,sizeof(x))
+#define SET(x,y) memset((x),(y),sizeof(x))
 
 typedef vector<int> VI;
 typedef vector<string> VS;
@@ -41,14 +67,13 @@ class FoxAndHandle {
     }
     
     bool check(string s, int *cnt) {
-        vector<int> left(cnt, cnt+26); 
+        vector<int> left(cnt, cnt+26);
         REP(i, s.length()) {
             left[s[i]-'a']--;
         }
         REP(i, 26) if(left[i] > 0) return false;
         return true;
     }
-
     
 // BEGIN CUT HERE
 	public:
