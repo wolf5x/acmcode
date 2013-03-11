@@ -12,5 +12,5 @@
 *.a
 
 # Executive
-a.out
+*.out
 
