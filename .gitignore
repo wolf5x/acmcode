@@ -14,3 +14,6 @@
 # Executive
 *.out
 
+# Tmp file
+*.swp
+
