@@ -1,4 +1,4 @@
-// 750min, n WA
+// 75min, n WA
 // nlgn
 class Solution {
     string gs;
