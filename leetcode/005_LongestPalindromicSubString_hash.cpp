@@ -1,4 +1,5 @@
-// !!! WAing
+// 750min, n WA
+// nlgn
 class Solution {
     string gs;
     vector<unsigned long> hl, hr;
@@ -55,15 +56,7 @@ public:
     bool ismirror(int mid, int len) {
         unsigned long v1 = hl[mid+1] - hl[mid-len]*ex[len+1];
         unsigned long v2 = hr[mid] - hr[mid+len+1]*ex[len+1];
-        if(v1 == v2) {
-            return true;
-        }
-        for(int i = 1; i <= len; i++) {
-            if(gs[mid-i] != gs[mid+i]) {
-                return false;
-            }
-        }
-        return true;
+        return v1 == v2;
     }
     
 };
